@@ -1,0 +1,13 @@
+Tetris OS - An Operating system which only runs Tetris
+
+Requirements:
+ - nasm
+ - qemu
+ - gcc
+
+Building:
+ - Run `make run`
+
+References:
+ - Project inspired by this video: https://youtu.be/FaILnmUYS_U?si=Q3sd48cud3CR5dld
+ - Source code based on this blog: https://dev.to/frosnerd/writing-my-own-boot-loader-3mld
