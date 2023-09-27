@@ -1,26 +1,43 @@
+# NOTE-to-self: useful variables
 # $@ = target file
 # $< = first dependency
 # $^ = all dependencies
 
+CC=gcc
+CFLAGS=-m32 -ffreestanding -fno-pie
+AS=nasm
+LD=ld
+LDFLAGS=-m elf_i386 -Ttext 0x1000 --oformat binary
+
+BUILDDIR=build
+KERNELSRC=kernel
+
+dir_guard=@mkdir -p $(@D)
+
 all: run
 
-kernel.bin: kernel-entry.o kernel.o
-	ld -m elf_i386 -o $@ -Ttext 0x1000 $^ --oformat binary
+$(BUILDDIR)/kernel.bin: $(BUILDDIR)/kernel-entry.o $(BUILDDIR)/kernel.o
+	$(dir_guard)
+	$(LD) $(LDFLAGS) $^ -o $@
 
-kernel-entry.o: kernel/kernel-entry.asm
-	nasm $< -f elf -o $@
+$(BUILDDIR)/kernel-entry.o: $(KERNELSRC)/kernel-entry.asm
+	$(dir_guard)
+	$(AS) -f elf $< -o $@
 
-kernel.o: kernel/main.c
-	gcc -m32 -ffreestanding -fno-pie -c $< -o $@
+$(BUILDDIR)/kernel.o: $(KERNELSRC)/main.c
+	$(dir_guard)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-boot.bin: boot.asm
-	nasm $< -f bin -o $@
+$(BUILDDIR)/boot.bin: boot.asm
+	$(dir_guard)
+	$(AS) $< -f bin -o $@
 
-os-image.bin: boot.bin kernel.bin
+$(BUILDDIR)/os-image.bin: $(BUILDDIR)/boot.bin $(BUILDDIR)/kernel.bin
+	$(dir_guard)
 	cat $^ > $@
 
-run: os-image.bin
+run: $(BUILDDIR)/os-image.bin
 	qemu-system-i386 -hda $<
 
 clean:
-	rm *.bin *.o
+	rm -rf build

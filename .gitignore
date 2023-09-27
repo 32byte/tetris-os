@@ -2,5 +2,7 @@
 .vscode
 
 # Build
+/build
+
 *.bin
 *.o
